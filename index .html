@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>मिस्बाह मेवाती कार शॉप | HD Cockpit & DJ Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none; /* कंटेंट और कोड को राइट क्लिक / सेलेक्ट होने से बचाने के लिए */
+        }
+
+        body {
+            background-color: #06060c;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Anti-Download & Security Layer */
+        body, iframe, canvas {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        header {
+            background: linear-gradient(90deg, #111428, #06060c);
+            padding: 16px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #00f2fe;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #00f2fe;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .logo span { color: #ff0055; }
+
+        /* Instagram Gate Overlay (Lock Screen) */
+        #instaLockOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 10, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .lock-card {
+            background: #111425;
+            padding: 40px 30px;
+            border-radius: 20px;
+            border: 2px solid #ff0055;
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.4);
+            max-width: 480px;
+            width: 100%;
+        }
+
+        .lock-card h2 {
+            color: #00f2fe;
+            margin-bottom: 15px;
+            font-size: 26px;
+        }
+
+        .lock-card p {
+            color: #ccc;
+            margin-bottom: 25px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .insta-btn {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(220, 39, 67, 0.4);
+            transition: 0.3s;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .insta-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(220, 39, 67, 0.7);
+        }
+
+        .unlock-btn {
+            background: #00f2fe;
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .unlock-btn:hover {
+            background: #4cc9f0;
+            box-shadow: 0 0 15px #00f2fe;
+        }
+
+        /* Main Game Layout */
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px 15px;
+            max-width: 1450px;
+            margin: 0 auto;
+        }
+
+        .cockpit-view {
+            position: relative;
+            background: #0f1220;
+            border-radius: 15px;
+            padding: 15px;
+            border: 2px solid #00f2fe;
+            flex: 1 1 750px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dashboard-container {
+            position: relative;
+            width: 100%;
+            max-width: 750px;
+            height: 420px;
+            background: #050505;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 3px solid #222;
+        }
+
+        .road {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 55%;
+            background: radial-gradient(circle at 50% 100%, #2a3d32, #101622);
+            overflow: hidden;
+            border-bottom: 6px solid #1a1a1a;
+        }
+
+        .lane-markings {
+            position: absolute;
+            width: 8px;
+            height: 100%;
+            left: 50%;
+            background: dashed linear-gradient(to bottom, #fff 50%, transparent 50%);
+            background-size: 10px 40px;
+            animation: drive 0.4s infinite linear;
+        }
+
+        @keyframes drive {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 40px; }
+        }
+
+        .dash-frame {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(180deg, #181818 0%, #080808 100%);
+            border-top: 5px solid #ff0055;
+            border-radius: 35px 35px 0 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 30px;
+        }
+
+        .steering-wheel {
+            width: 140px;
+            height: 140px;
+            border: 16px solid #1f1f1f;
+            border-top: 16px solid #3d3d3d;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: inset 0 0 10px #000, 0 5px 15px rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.1s ease;
+        }
+
+        .steering-center {
+            width: 48px;
+            height: 48px;
+            background: #000;
+            border-radius: 50%;
+            border: 2px solid #00f2fe;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .car-tv-screen {
+            width: 270px;
+            height: 160px;
+            background: #000;
+            border: 3px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+        }
+
+        .car-tv-screen iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .control-panel {
+            background: #0f1220;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #00f2fe;
+            flex: 1 1 380px;
+        }
+
+        .control-panel h2 {
+            color: #00f2fe;
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-bottom: 1px solid #1a1e36;
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #4cc9f0;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            background: #06060c;
+            border: 1px solid #00f2fe;
+            color: #fff;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        .btn {
+            background: #06060c;
+            color: #00f2fe;
+            border: 1px solid #00f2fe;
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #00f2fe;
+            color: #000;
+        }
+
+        .dj-btn {
+            background: #ff0055;
+            color: #fff;
+            border: none;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 15px;
+        }
+
+        .dj-btn:hover {
+            background: #ff0077;
+            box-shadow: 0 0 15px #ff0055;
+        }
+
+        .car-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .car-option {
+            background: #161a30;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #2a2f52;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .car-option:hover, .car-option.active {
+            border-color: #ff0055;
+            box-shadow: 0 0 10px #ff0055;
+        }
+
+        .dj-active {
+            animation: djFlash 0.5s infinite alternate;
+        }
+
+        @keyframes djFlash {
+            0% { box-shadow: 0 0 25px #ff0055; }
+            50% { box-shadow: 0 0 25px #00f2fe; }
+            100% { box-shadow: 0 0 25px #9d4edd; }
+        }
+
+        footer {
+            text-align: center;
+            padding: 18px;
+            background: #06060c;
+            border-top: 1px solid #111428;
+            color: #777;
+            margin-top: 30px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;"> <!-- राइट क्लिक बैन (Anti-Download Layer) -->
+
+    <!-- INSTAGRAM FOLLOW LOCK OVERLAY -->
+    <div id="instaLockOverlay">
+        <div class="lock-card">
+            <h2>🔒 गेमिंग ज़ोन लॉक है!</h2>
+            <p>मिस्बाह मेवाती HD कार गेम खेलने के लिए पहले इंस्टाग्राम पर फॉलो करें और फिर अनलॉकिंग बटन पर क्लिक करें।</p>
+            
+            <a href="https://www.instagram.com/misba_raja_10k?srtk=MTMxYXF2aDJsczdtOA==" target="_blank" class="insta-btn" onclick="registerClick()">
+                📸 Follow @misba_raja_10k
+            </a>
+
+            <button class="unlock-btn" onclick="verifyAndUnlock()">✅ फॉलो कर लिया, गेम शुरू करें</button>
+        </div>
+    </div>
+
+    <!-- MAIN GAME SITE (Only active after follow) -->
+    <header>
+        <div class="logo">मिस्बाह मेवाती <span>कार शॉप HD</span></div>
+        <div>
+            <button class="btn" onclick="steer('left')">◀ स्टिक लेफ़्ट</button>
+            <button class="btn" onclick="steer('right')">स्टिक राइट ▶</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        
+        <!-- HD Cockpit / Driving Simulator -->
+        <div class="cockpit-view" id="cockpit">
+            <h2 style="color:#00f2fe; margin-bottom:10px;">HD इंटीरियर डैशबोर्ड & इन-कार YouTube TV</h2>
+            
+            <div class="dashboard-container">
+                <div class="road">
+                    <div class="lane-markings"></div>
+                </div>
+
+                <div class="dash-frame">
+                    <div class="steering-wheel" id="steering">
+                        <div class="steering-center" id="carLogo">SCORPIO</div>
+                    </div>
+
+                    <!-- Car Screen Player -->
+                    <div class="car-tv-screen">
+                        <iframe id="youtubeEmbed" src="https://www.youtube.com/embed/live_stream?enablejsapi=1" title="Car Screen" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="margin-top: 10px; color: #888; font-size: 13px;">🔒 यह गेम केवल मिस्बाह मेवाती की साइट पर ऑनलाइन चलेगा। डाउनलोड करने का ऑप्शन डिसेबल है।</p>
+        </div>
+
+        <!-- Right Control Panel -->
+        <div class="control-panel">
+            <h2>कार TV में गाना बजाएं (YouTube Link)</h2>
+            <div class="form-group">
+                <label>YouTube Video Link यहाँ पेस्ट करें:</label>
+                <input type="text" id="ytUrl" placeholder="https://www.youtube.com/watch?v=VIDEO_ID">
+                <button class="btn" style="width: 100%; margin-top:8px;" onclick="loadYoutubeVideo()">📺 स्क्रीन में प्ले करें</button>
+            </div>
+
+            <h2>DJ क्लब लाइट्स</h2>
+            <button class="btn dj-btn" onclick="toggleDJ()">🎉 DJ लाइट मोड ऑन/ऑफ</button>
+
+            <h2>टॉप HD कार चुनिए</h2>
+            <div class="car-selector">
+                <div class="car-option active" onclick="selectVehicle('Scorpio S11', 'SCORPIO')">
+                    <strong>Scorpio S11</strong>
+                </div>
+                <div class="car-option" onclick="selectVehicle('Fortuner Legender', 'TOYOTA')">
+                    <strong>Fortuner 4x4</strong>
+                </div>
+                <div class="car-option" onclick="selectVehicle('Defender 110', 'DEFENDER')">
+                    <strong>Defender 110</strong>
+                </div>
+                <div class="car-option" onclick="selectVehicle('Thar 4x4', 'THAR')">
+                    <strong>Thar Off-Road</strong>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 मिस्बाह मेवाती कार शॉप | In-Browser Only Game (Download Protected)</p>
+    </footer>
+
+    <script>
+        let hasClickedInsta = false;
+        let currentAngle = 0;
+        let isDjOn = false;
+
+        // Instagram Click Counter
+        function registerClick() {
+            hasClickedInsta = true;
+        }
+
+        // Verify Instagram Follow Gate
+        function verifyAndUnlock() {
+            if (hasClickedInsta) {
+                document.getElementById('instaLockOverlay').style.display = 'none';
+            } else {
+                alert('कृपया पहले फॉलो बटन दबाएं!');
+            }
+        }
+
+        // Anti-Keyboard Save Shortcuts (Ctrl+S, Ctrl+U block)
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'u' || e.key === 'S' || e.key === 'U')) {
+                e.preventDefault();
+                alert('यह गेम डाउनलोड नहीं किया जा सकता! केवल मिस्बाह मेवाती की वेबसाइट पर खेलें।');
+            }
+        });
+
+        // Steering Control
+        function steer(direction) {
+            const wheel = document.getElementById('steering');
+            if (direction === 'left') currentAngle -= 45;
+            if (direction === 'right') currentAngle += 45;
+            wheel.style.transform = `rotate(${currentAngle}deg)`;
+        }
+
+        // Vehicle Select
+        function selectVehicle(name, logoText) {
+            document.getElementById('carLogo').innerText = logoText;
+            const options = document.querySelectorAll('.car-option');
+            options.forEach(opt => opt.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        // YouTube Audio/Video Player for Car Dashboard
+        function loadYoutubeVideo() {
+            const input = document.getElementById('ytUrl').value.trim();
+            const iframe = document.getElementById('youtubeEmbed');
+            let videoId = '';
+
+            if (input.includes('v=')) {
+                videoId = input.split('v=')[1].split('&')[0];
+            } else if (input.includes('youtu.be/')) {
+                videoId = input.split('youtu.be/')[1].split('?')[0];
+            } else {
+                videoId = input;
+            }
+
+            if (videoId) {
+                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            } else {
+                alert('कृपया सही YouTube लिंक दर्ज करें!');
+            }
+        }
+
+        // DJ Flashing Lights Toggle
+        function toggleDJ() {
+            const cockpit = document.getElementById('cockpit');
+            isDjOn = !isDjOn;
+            if (isDjOn) {
+                cockpit.classList.add('dj-active');
+            } else {
+                cockpit.classList.remove('dj-active');
+            }
+        }
+    </script>
+</body>
+</html>
